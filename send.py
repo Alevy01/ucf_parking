@@ -1,9 +1,10 @@
 from flask import Flask, request, redirect
 import twilio.twiml
 from twilio.rest import TwilioRestClient
+import config
 
-account = "AC8902f665df08b74da8713b438bb27631"
-token = "a5ef95787f4dc83d458feb16deccd8ea"
+account = config.twilio_config['account']
+token = config.twilio_config['token']
 client = TwilioRestClient(account, token)
 
 app = Flask(__name__)
