@@ -3,7 +3,7 @@ import urllib2
 import json
 import BeautifulSoup
 
-def lambda_handler():
+def lambda_handler(event, context):
   r = urllib2.urlopen('http://secure.parking.ucf.edu/GarageCount/').read()
   bs = BeautifulSoup.BeautifulSoup(r)
   
@@ -19,7 +19,4 @@ def lambda_handler():
     except AttributeError as e:
       print e
       
-  print json.dumps(data)
-
-
-lambda_handler()
+  return json.dumps(data)
