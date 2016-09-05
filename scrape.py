@@ -33,10 +33,14 @@ def lambda_handler(event, context):
   time = datetime.datetime.now().time()
   hour = time.hour
   minute = time.minute
+
+  #This will overflow past midnight but we don't care. There will be no texts to be sent at that time.
+  #UI should check if time is valid class time prior to submitting.
   if minute >=53:
     hour = hour + 1
   
   minute = myround(minute)
+  #Check if hour comes back at 05 or just 5. If just 5, pad 0 to front.
   now = str(hour) + str(minute)
   if len(now) != 4:
     now += '0'
@@ -55,3 +59,7 @@ def lambda_handler(event, context):
   
 def myround(x, base=15):
   return int(base * round(float(x)/base)) % 60
+
+def garage_logic(garage):
+
+
