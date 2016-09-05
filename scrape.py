@@ -51,11 +51,7 @@ def lambda_handler(event, context):
 
   for user in users:
     num = user[0]
-    message = client.messages.create(to=num, from_=config.twilio_config['number'], body="")
+    message = client.messages.create(to=num, from_=config.twilio_config['number'], body="Message Body.")
   
 def myround(x, base=15):
   return int(base * round(float(x)/base)) % 60
-
-event = {'building' : 'A'}
-lambda_handler(event, '')
-
