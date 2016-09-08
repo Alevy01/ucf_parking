@@ -23,12 +23,10 @@ def lambda_handler(event, context):
       available = g.find(lambda tag: tag.name=='td' and tag.has_key('id') and "_2" in tag['id']).getText().split('/')[0]
       data[name] = available
     except AttributeError as e:
-      print e
-      
+      print e  
 
-  g_data = json.dumps(data)
-  conn = psycopg2.connect(dbname=config.db_config['dbname'], user=config.db_config['user'], password=config.db_config['password'], host=config.db_config['host'], port=config.db_config['port'])
-  cur = conn.cursor()
+ #  conn = psycopg2.connect(dbname=config.db_config['dbname'], user=config.db_config['user'], password=config.db_config['password'], host=config.db_config['host'], port=config.db_config['port'])
+  # cur = conn.cursor()
   today = datetime.datetime.today().weekday()
   time = datetime.datetime.now().time()
   hour = time.hour
@@ -46,20 +44,55 @@ def lambda_handler(event, context):
     now += '0'
 
   query = 'SELECT * from "user_texts" where "day"='+str(today)+' AND "time"='+str(now)+';'
-  cur.execute(query)
-  users = cur.fetchall();
-
+  #cur.execute(query)
+  #users = cur.fetchall();
+  users = {(112314,'blank','blank','HEC'),(123,'blank','blank','HEC'),(456,'blank','blank','HPA')} # DELETE IF YOU HOOK IN USERS
   account = config.twilio_config['account']
   token = config.twilio_config['token']
   client = TwilioRestClient(account, token)
-
+  gTable = {} 
   for user in users:
     num = user[0]
+    building = user[3]
+    resultGarage = ''
+    if building in gTable: 
+      resultGarage = gTable[building] 
+    else:
+      resultGarage = garage_logic(building,data)
+      gTable[building] = resultGarage
+    # print the message
+    #print("The Garage closest to "+building+" is Garage "+resultGarage)
     message = client.messages.create(to=num, from_=config.twilio_config['number'], body="Message Body.")
   
 def myround(x, base=15):
   return int(base * round(float(x)/base)) % 60
 
-def garage_logic(garage):
+def garage_logic(building,data):
+  dict = {
+    'HEC': ['C','D'],
+    'ENG1': ['B','C'],
+    'ENG2': ['C','D'],
+    'BA1': ['B','C'],
+    'BA2': ['B','C'],
+    'HPA': ['D','H'],
+    'HPA2': ['D','C'],
+    'CB1': ['H','D'],
+    'CB2': ['H','D'],
+    'CSB': ['B','I'],
+    'PSY': ['H','D'],
+    'NSC': ['H','D'],
+    'CAH': ['H','D'],
+    'VAB': ['H','I'],
+    'PAC': ['H','I'],
+    'ED': ['A','I'],
+    'TA': ['A','I'],
+    'MSB': ['A','B'],
+    'CHEM': ['B','Libra'],
+    'RWC': ['B','Libra'],
+    'BIO': ['B','Libra'],
+    'PSB': ['B','Libra']
+    }
+  return dict[building][0] if data[dict[building][0]] > data[dict[building][1]] else dict[building][1]
 
+lambda_handler({},{})
 
