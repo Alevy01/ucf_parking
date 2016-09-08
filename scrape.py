@@ -2,7 +2,7 @@ import bs4
 import urllib2
 import json
 import BeautifulSoup
-import psycopg2
+#import psycopg2
 import datetime
 import twilio.twiml
 from twilio.rest import TwilioRestClient
@@ -46,7 +46,7 @@ def lambda_handler(event, context):
   query = 'SELECT * from "user_texts" where "day"='+str(today)+' AND "time"='+str(now)+';'
   #cur.execute(query)
   #users = cur.fetchall();
-  users = {(112314,'blank','blank','HEC'),(123,'blank','blank','HEC'),(456,'blank','blank','HPA')} # DELETE IF YOU HOOK IN USERS
+  users = {(+16105477184,'blank','blank','HEC'),(+16105477184,'blank','blank','HEC'),(+16105477184,'blank','blank','HPA')} # DELETE IF YOU HOOK IN USERS
   account = config.twilio_config['account']
   token = config.twilio_config['token']
   client = TwilioRestClient(account, token)
@@ -61,8 +61,8 @@ def lambda_handler(event, context):
       resultGarage = garage_logic(building,data)
       gTable[building] = resultGarage
     # print the message
-    #print("The Garage closest to "+building+" is Garage "+resultGarage)
-    message = client.messages.create(to=num, from_=config.twilio_config['number'], body="Message Body.")
+    msg = "The Garage closest to "+building+" is Garage "+resultGarage
+    message = client.messages.create(to=num, from_=config.twilio_config['number'], body=msg)
   
 def myround(x, base=15):
   return int(base * round(float(x)/base)) % 60
