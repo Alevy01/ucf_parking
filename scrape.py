@@ -2,7 +2,7 @@ import bs4
 import urllib2
 import json
 import BeautifulSoup
-#import psycopg2
+import psycopg2
 import datetime
 import twilio.twiml
 from twilio.rest import TwilioRestClient
@@ -25,8 +25,8 @@ def lambda_handler(event, context):
     except AttributeError as e:
       print e  
 
- #  conn = psycopg2.connect(dbname=config.db_config['dbname'], user=config.db_config['user'], password=config.db_config['password'], host=config.db_config['host'], port=config.db_config['port'])
-  # cur = conn.cursor()
+  conn = psycopg2.connect(dbname=config.db_config['dbname'], user=config.db_config['user'], password=config.db_config['password'], host=config.db_config['host'], port=config.db_config['port'])
+  cur = conn.cursor()
   today = datetime.datetime.today().weekday()
   time = datetime.datetime.now().time()
   hour = time.hour
@@ -42,11 +42,12 @@ def lambda_handler(event, context):
   now = str(hour) + str(minute)
   if len(now) != 4:
     now += '0'
+  if hour < 10:
+    now = '0' + now
 
   query = 'SELECT * from "user_texts" where "day"='+str(today)+' AND "time"='+str(now)+';'
-  #cur.execute(query)
-  #users = cur.fetchall();
-  users = {(+16105477184,'blank','blank','HEC'),(+16105477184,'blank','blank','HEC'),(+16105477184,'blank','blank','HPA')} # DELETE IF YOU HOOK IN USERS
+  cur.execute(query)
+  users = cur.fetchall();
   account = config.twilio_config['account']
   token = config.twilio_config['token']
   client = TwilioRestClient(account, token)
@@ -61,7 +62,7 @@ def lambda_handler(event, context):
       resultGarage = garage_logic(building,data)
       gTable[building] = resultGarage
     # print the message
-    msg = "The Garage closest to "+building+" is Garage "+resultGarage
+    msg = 'You should park in Garage ' +resultGarage+ '. It has the most open spots in relation to ' + building  +'.'
     message = client.messages.create(to=num, from_=config.twilio_config['number'], body=msg)
   
 def myround(x, base=15):
@@ -93,6 +94,3 @@ def garage_logic(building,data):
     'PSB': ['B','Libra']
     }
   return dict[building][0] if data[dict[building][0]] > data[dict[building][1]] else dict[building][1]
-
-lambda_handler({},{})
-

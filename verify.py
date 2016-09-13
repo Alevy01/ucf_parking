@@ -5,7 +5,7 @@ import config
 
 
 
-def lambda_hanlder(event,context):
+def lambda_handler(event,context):
   verification_code = randint(10000,99999)
   phone_number = event['phone_number']
   account = config.twilio_config['account']
@@ -13,3 +13,5 @@ def lambda_hanlder(event,context):
   client = TwilioRestClient(account,token)
   client.messages.create(to=phone_number,from_=config.twilio_config["number"],body='Your verification code is '+ str(verification_code))
   return verification_code
+
+
